@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Financeiro</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+        h2 { margin-top: 32px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+        pre { background: #f4f4f4; border: 1px solid #ddd; padding: 12px; overflow-x: auto; }
+        form { margin-bottom: 8px; }
+        input, select { padding: 4px; margin-right: 4px; }
+        #resposta { font-weight: bold; color: #0a5; }
+    </style>
+</head>
+<body>
+
+<h1>Financeiro</h1>
+<p>Resposta do servidor: <span id="resposta">-</span></p>
+
+<h2>Categoria</h2>
+<form onsubmit="salvar(event, 'categoria')">
+    <input name="id" placeholder="id (vazio = novo)" size="14">
+    <input name="descricao" placeholder="descrição" required>
+    <button>Salvar</button>
+</form>
+<form onsubmit="excluir(event, 'categoria')">
+    <input name="id" placeholder="id" size="14" required>
+    <button>Excluir</button>
+</form>
+<pre id="json-categoria"></pre>
+
+<h2>Conta</h2>
+<form onsubmit="salvar(event, 'conta')">
+    <input name="id" placeholder="id (vazio = novo)" size="14">
+    <input name="descricao" placeholder="descrição" required>
+    <button>Salvar</button>
+</form>
+<form onsubmit="excluir(event, 'conta')">
+    <input name="id" placeholder="id" size="14" required>
+    <button>Excluir</button>
+</form>
+<pre id="json-conta"></pre>
+
+<h2>Transacao</h2>
+<form onsubmit="salvar(event, 'transacao')">
+    <input name="id" placeholder="id (vazio = novo)" size="14">
+    <input name="descricao" placeholder="descrição" required>
+    <input name="valor" type="number" step="0.01" placeholder="valor" required>
+    <select name="tipo">
+        <option value="D">D - saída</option>
+        <option value="C">C - entrada</option>
+    </select>
+    <input name="datatransacao" type="date" required>
+    <input name="conta" type="number" placeholder="id da conta" required>
+    <input name="categoria" type="number" placeholder="id da categoria" required>
+    <button>Salvar</button>
+</form>
+<form onsubmit="excluir(event, 'transacao')">
+    <input name="id" placeholder="id" size="14" required>
+    <button>Excluir</button>
+</form>
+<pre id="json-transacao"></pre>
+
+<script>
+    // monta o JSON que vai para a API a partir dos campos do formulario
+    function corpoDoFormulario(campos, recurso) {
+        if (recurso !== "transacao") {
+            return { descricao: campos.get("descricao") };
+        }
+        return {
+            descricao: campos.get("descricao"),
+            valor: Number(campos.get("valor")),
+            tipo: campos.get("tipo"),
+            datatransacao: campos.get("datatransacao"),
+            conta: { id: Number(campos.get("conta")) },
+            categoria: { id: Number(campos.get("categoria")) }
+        };
+    }
+
+    async function chamar(caminho, metodo, corpo) {
+        const resposta = await fetch(caminho, {
+            method: metodo,
+            headers: corpo ? { "Content-Type": "application/json" } : undefined,
+            body: corpo ? JSON.stringify(corpo) : undefined
+        });
+        document.getElementById("resposta").textContent = await resposta.text();
+        listarTudo();
+    }
+
+    // com id preenchido faz PUT (editar), sem id faz POST (inserir)
+    function salvar(evento, recurso) {
+        evento.preventDefault();
+        const campos = new FormData(evento.target);
+        const id = campos.get("id");
+        const corpo = corpoDoFormulario(campos, recurso);
+        if (id) {
+            chamar("/" + recurso + "/" + id, "PUT", corpo);
+        } else {
+            chamar("/" + recurso, "POST", corpo);
+        }
+        evento.target.reset();
+    }
+
+    function excluir(evento, recurso) {
+        evento.preventDefault();
+        const id = new FormData(evento.target).get("id");
+        chamar("/" + recurso + "/" + id, "DELETE");
+        evento.target.reset();
+    }
+
+    async function listar(recurso) {
+        const resposta = await fetch("/" + recurso);
+        const lista = await resposta.json();
+        document.getElementById("json-" + recurso).textContent = JSON.stringify(lista, null, 2);
+    }
+
+    function listarTudo() {
+        listar("categoria");
+        listar("conta");
+        listar("transacao");
+    }
+
+    listarTudo();
+</script>
+
+</body>
+</html>
