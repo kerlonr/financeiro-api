@@ -1,0 +1,55 @@
+<main class="auth">
+  <section class="auth-formulario">
+    <span class="marca"><img src="favicon.svg" alt="" /> Lastro</span>
+
+    <div class="auth-conteudo">
+      <h1>Entrar</h1>
+      <p class="auth-subtitulo">Bom te ver de novo.</p>
+
+      @if (envio.erro()) {
+        <div class="erro-formulario" role="alert">{{ envio.erro() }}</div>
+      }
+
+      <form class="formulario" [formGroup]="form" (ngSubmit)="entrar()">
+        <mat-form-field>
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          @if (form.controls.email.hasError('email')) {
+            <mat-error>E-mail inválido.</mat-error>
+          } @else {
+            <mat-error>Informe seu e-mail.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Senha</mat-label>
+          <input matInput type="password" formControlName="senha" autocomplete="current-password" />
+          <mat-error>Informe sua senha.</mat-error>
+        </mat-form-field>
+
+        <button mat-flat-button class="botao-largo" type="submit" [disabled]="envio.enviando()">
+          {{ envio.enviando() ? 'Entrando…' : 'Entrar' }}
+        </button>
+      </form>
+
+      <p class="auth-troca">Ainda não tem conta? <a routerLink="/cadastro">Criar conta</a></p>
+    </div>
+  </section>
+
+  <aside class="auth-lado" aria-hidden="true">
+    <p class="auth-lado-titulo">Seu dinheiro, conta por conta.</p>
+    <div class="auth-amostra">
+      <span class="rotulo">Saldo geral</span>
+      <strong class="valor">R$ 12.480,90</strong>
+      <div class="auth-amostra-linha">
+        <span>Conta corrente</span><span class="valor">R$ 8.210,40</span>
+      </div>
+      <div class="auth-amostra-linha">
+        <span>Poupança</span><span class="valor">R$ 3.900,00</span>
+      </div>
+      <div class="auth-amostra-linha">
+        <span>Carteira</span><span class="valor">R$ 370,50</span>
+      </div>
+    </div>
+  </aside>
+</main>

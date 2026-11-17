@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ categoria ? 'Editar categoria' : 'Nova categoria' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <mat-dialog-content class="formulario">
+    @if (envio.erro()) {
+      <div class="erro-formulario" role="alert">{{ envio.erro() }}</div>
+    }
+
+    <mat-form-field>
+      <mat-label>Nome</mat-label>
+      <input
+        matInput
+        formControlName="nome"
+        maxlength="60"
+        placeholder="Ex.: Mercado"
+        cdkFocusInitial
+      />
+      <mat-error>Informe o nome da categoria.</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="envio.enviando()">Salvar</button>
+  </mat-dialog-actions>
+</form>

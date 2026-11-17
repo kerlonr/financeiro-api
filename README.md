@@ -1,96 +1,176 @@
-# financeiro
+# Lastro · Gestão financeira pessoal
 
-API REST em Quarkus com acesso ao PostgreSQL (atividade prática de POO).
+Aplicação de finanças pessoais feita com **Quarkus** (API) e **Angular** (interface), com autenticação JWT em cookie httpOnly.
 
-## Banco de dados
+Trabalho da disciplina de Programação Orientada a Objetos — Prof. Tiago Seibel.
 
-O script `database/financeiro.sql` cria as tabelas `categoria`, `conta` e `transacao`.
+## Visão Geral
 
-```shell script
-psql -U postgres -d financeiro -f database/financeiro.sql
+O projeto permite:
+
+- criar uma conta de usuário e entrar com e-mail e senha
+- cadastrar **contas** (corrente, poupança, carteira...) com saldo inicial
+- cadastrar **categorias** (mercado, salário, transporte...)
+- lançar **transações** de entrada e saída
+- filtrar transações por **mês**, **conta** e **categoria**
+- **transferir** valores entre contas
+- ver na **tela inicial** o saldo de cada conta, o saldo geral e o resumo do mês
+
+Cada usuário só enxerga os próprios dados.
+
+## Stack
+
+- Java 17 + Quarkus 3 (REST, Hibernate ORM com Panache, Hibernate Validator, SmallRye JWT, Flyway)
+- PostgreSQL 16
+- Angular 22 + Angular Material (signals, reactive forms, CSS puro)
+- nginx (produção) e Docker Compose
+
+## Estrutura
+
+```text
+.
+|-- backend/                      API Quarkus
+|   |-- src/main/java/br/edu/setrem/financeiro/
+|   |   |-- auth/                 cadastro, login, sessão (JWT + refresh token)
+|   |   |-- conta/                contas e cálculo de saldo
+|   |   |-- categoria/            categorias
+|   |   |-- transacao/            transações, filtros e transferências
+|   |   |-- painel/               resumo da tela inicial
+|   |   `-- common/               base das entidades, usuário logado, tratamento de erros
+|   |-- src/main/resources/
+|   |   |-- application.properties
+|   |   `-- db/migration/         scripts do banco (Flyway)
+|   |-- src/test/java/            testes de integração
+|   `-- Dockerfile
+|-- frontend/                     Interface Angular
+|   |-- src/app/
+|   |   |-- common/               componentes e utilitários reutilizáveis
+|   |   `-- pages/<funcionalidade>/{model, services, componentes}
+|   |-- nginx.conf                servidor de produção (headers de segurança + proxy da API)
+|   `-- Dockerfile
+|-- scripts/gerar-chaves.sh       gera as chaves RSA do JWT para produção
+|-- docker-compose.yml            aplicação completa (produção)
+|-- docker-compose.dev.yml        apenas o banco, para desenvolvimento
+`-- .env.example
 ```
 
-A conexão está configurada em `src/main/resources/application.properties`.
+A documentação detalhada (arquitetura, segurança, regras de negócio) fica em `.claude/skills/`.
+
+## Requisitos
+
+| Para                | Precisa                                   |
+|---------------------|-------------------------------------------|
+| Rodar em modo dev   | JDK 17+, Node 22.22+ (ou 24), PostgreSQL 16 |
+| Rodar tudo em Docker| Docker com Compose                        |
+
+O Maven não precisa ser instalado: o projeto usa o wrapper `./mvnw`.
+
+## Rodando em desenvolvimento
+
+1. **Banco de dados** — suba um PostgreSQL com banco `financeiro`, usuário `financeiro` e senha `financeiro` em `localhost:5432`.
+   Com Docker, basta:
+
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d
+   ```
+
+2. **API** (porta 8080) — as tabelas são criadas automaticamente pelo Flyway:
+
+   ```bash
+   cd backend
+   ./mvnw quarkus:dev
+   ```
+
+   No Windows PowerShell use `.\mvnw.cmd quarkus:dev`.
+
+3. **Interface** (porta 4200) — o `proxy.conf.json` repassa `/api` para a porta 8080:
+
+   ```bash
+   cd frontend
+   npm ci
+   npm start
+   ```
+
+4. Acesse **http://localhost:4200**, clique em **Criar conta** e comece.
+
+Em modo dev o Quarkus gera sozinho as chaves do JWT; não é preciso configurar nada.
+
+## Rodando com Docker (produção)
+
+```bash
+cp .env.example .env              # e troque a senha do banco
+sudo sh scripts/gerar-chaves.sh   # cria secrets/jwt-privada.pem e secrets/jwt-publica.pem
+docker compose up -d --build
+```
+
+A aplicação fica em **http://127.0.0.1:8090** (porta definida por `PORTA` no `.env`).
+Só o nginx é publicado, e apenas em `127.0.0.1`; banco e API ficam na rede interna do Docker.
+Para acesso externo use um proxy reverso com HTTPS (no servidor: túnel Cloudflare).
+
+## Testes
+
+Os testes de integração ficam em `backend/src/test` e sobem um PostgreSQL temporário automaticamente (Quarkus Dev Services, exige Docker):
+
+```bash
+cd backend
+./mvnw test
+```
+
+Sem Docker, aponte para um PostgreSQL vazio:
+
+```bash
+./mvnw test -Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/financeiro_test \
+            -Dquarkus.datasource.username=postgres -Dquarkus.datasource.password=postgres
+```
+
+Cobrem: autenticação (cookies, bloqueio por tentativas, rotação e reuso de refresh token, logout),
+isolamento entre usuários, cálculo de saldo, transferências, filtros e validações.
+
+Interface (testes dos utilitários de data e de mensagens de erro, e build de produção):
+
+```bash
+cd frontend
+npm test -- --watch=false
+npm run build
+```
 
 ## Endpoints
 
-| Recurso     | GET              | POST            | PUT                   | DELETE                |
-|-------------|------------------|-----------------|-----------------------|-----------------------|
-| Categoria   | `/categoria`     | `/categoria`    | `/categoria/{id}`     | `/categoria/{id}`     |
-| Conta       | `/conta`         | `/conta`        | `/conta/{id}`         | `/conta/{id}`         |
-| Transacao   | `/transacao`     | `/transacao`    | `/transacao/{id}`     | `/transacao/{id}`     |
+Todos sob `/api`. Exceto as rotas de entrada, todos exigem o cookie de sessão.
 
-Exemplo de corpo para criar uma transação:
+| Método | Rota | Descrição |
+|---|---|---|
+| `POST` | `/auth/cadastro` | Cria usuário e já inicia a sessão |
+| `POST` | `/auth/login` | Entra com e-mail e senha |
+| `POST` | `/auth/refresh` | Renova a sessão (troca o refresh token) |
+| `POST` | `/auth/logout` | Encerra a sessão |
+| `GET` | `/auth/me` | Usuário logado |
+| `GET` | `/painel` | Saldo geral, saldo por conta, totais do mês e últimas transações |
+| `GET` `POST` | `/contas` | Lista (com saldo) / cria |
+| `PUT` `DELETE` | `/contas/{id}` | Atualiza / exclui |
+| `GET` `POST` | `/categorias` | Lista / cria |
+| `PUT` `DELETE` | `/categorias/{id}` | Atualiza / exclui |
+| `GET` | `/transacoes?inicio=&fim=&contaId=&categoriaId=` | Lista do período (obrigatório, até 1 ano); conta e categoria opcionais |
+| `POST` | `/transacoes` | Lança entrada ou saída |
+| `PUT` `DELETE` | `/transacoes/{id}` | Atualiza / exclui |
+| `POST` | `/transacoes/transferencia` | Transfere entre duas contas |
 
-```json
-{
-  "descricao": "Mercado",
-  "valor": 150.90,
-  "tipo": "D",
-  "datatransacao": "2026-10-07",
-  "conta": { "id": 1 },
-  "categoria": { "id": 1 }
-}
-```
+Erros sempre voltam no formato `{ "mensagem": "...", "campos": { "campo": "..." } }`.
 
+## Segurança
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+- Senhas com **bcrypt** (custo 12); mesma resposta e mesmo tempo para e-mail inexistente ou senha errada.
+- Conta bloqueada por 15 minutos após 5 senhas erradas; nginx limita as rotas de login por IP.
+- **Access token JWT (RS256) de 15 minutos** em cookie `httpOnly`, `Secure`, `SameSite=Strict`.
+- **Refresh token** aleatório de 8 horas, guardado no banco só como hash SHA-256, **trocado a cada uso**;
+  se um token já usado reaparecer, todas as sessões daquele login são derrubadas.
+- Toda consulta filtra pelo usuário do token: acessar o id de outro usuário retorna 404.
+- Validação em duas camadas (Bean Validation na API + `CHECK`/`FOREIGN KEY` no banco).
+- Front e API na mesma origem (sem CORS), CSP restrita, `X-Frame-Options`, HSTS e demais headers no nginx.
+- Contêineres sem root, sistema de arquivos somente leitura, sem capabilities; segredos fora do git.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Boas práticas para este repositório
 
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-
-```shell script
-./mvnw quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
-
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
-```
-
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/financeiro-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): Build RESTful web services and APIs using Jakarta REST (formerly JAX-RS)
-- Hibernate ORM ([guide](https://quarkus.io/guides/hibernate-orm)): Object-relational mapping with JPA/Hibernate for relational database access
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplified JPA/Hibernate data access layer with active record and repository patterns
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
+- não commitar `.env` nem a pasta `secrets/`
+- mudanças no banco sempre por um novo arquivo `V<n>__descricao.sql` (nunca editar uma migração já aplicada)
+- rodar `./mvnw test` e `npm run build` antes de subir

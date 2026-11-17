@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+:host(:first-of-type) {
+  border-top: 0;
+}
+
+.valor {
+  font-weight: 550;
+}
+
+.valor.transferencia {
+  color: var(--cor-texto-suave);
+}

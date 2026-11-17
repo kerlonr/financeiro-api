@@ -1,0 +1,67 @@
+# Sobe a aplicação completa: banco + API + frontend (nginx).
+# Só o nginx fica acessível, e apenas em 127.0.0.1. Banco e API ficam na rede interna.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: financeiro
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d financeiro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/financeiro
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_privada
+      JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_publica
+      TZ: America/Sao_Paulo
+    secrets:
+      - jwt_privada
+      - jwt_publica
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:${PORTA:-8090}:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  jwt_privada:
+    file: ./secrets/jwt-privada.pem
+  jwt_publica:
+    file: ./secrets/jwt-publica.pem
+
+volumes:
+  pgdata:

@@ -1,0 +1,45 @@
+<section class="pagina">
+  <header class="pagina-cabecalho">
+    <div>
+      <h1>Categorias</h1>
+      <p>Agrupe seus lançamentos para entender para onde vai o dinheiro.</p>
+    </div>
+    <button mat-flat-button (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon>
+      Nova categoria
+    </button>
+  </header>
+
+  <div class="cartao">
+    @if (categorias.error()) {
+      <div class="vazio">Não foi possível carregar as categorias. Tente novamente.</div>
+    } @else {
+      @for (categoria of categorias.value(); track categoria.id) {
+        <div class="linha-lista">
+          <span class="icone-linha"><mat-icon>sell</mat-icon></span>
+          <div class="linha-dados">
+            <strong>{{ categoria.nome }}</strong>
+          </div>
+          <button mat-icon-button [matMenuTriggerFor]="acoes" aria-label="Ações da categoria">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #acoes="matMenu" xPosition="before">
+            <button mat-menu-item (click)="abrirFormulario(categoria)">
+              <mat-icon>edit</mat-icon>Editar
+            </button>
+            <button mat-menu-item (click)="excluir(categoria)">
+              <mat-icon>delete</mat-icon>Excluir
+            </button>
+          </mat-menu>
+        </div>
+      } @empty {
+        @if (!categorias.isLoading()) {
+          <div class="vazio">
+            <mat-icon>sell</mat-icon>
+            <p>Nenhuma categoria cadastrada. Exemplos: Mercado, Salário, Transporte.</p>
+          </div>
+        }
+      }
+    }
+  </div>
+</section>

@@ -1,0 +1,8 @@
+.seletor-tipo {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.seletor-tipo mat-button-toggle {
+  flex: 1;
+}

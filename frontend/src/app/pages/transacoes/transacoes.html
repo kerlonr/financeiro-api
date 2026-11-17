@@ -1,0 +1,99 @@
+<section class="pagina">
+  <header class="pagina-cabecalho">
+    <div>
+      <h1>Transações</h1>
+      <p>Entradas, saídas e transferências do período.</p>
+    </div>
+    <div class="acoes">
+      <button mat-stroked-button (click)="transferir()">
+        <mat-icon>sync_alt</mat-icon>
+        Transferir
+      </button>
+      <button mat-flat-button (click)="novaTransacao()">
+        <mat-icon>add</mat-icon>
+        Nova transação
+      </button>
+    </div>
+  </header>
+
+  <div class="filtros">
+    <div class="seletor-mes">
+      <button mat-icon-button aria-label="Mês anterior" (click)="mudarMes(-1)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span>{{ mes() | date: 'MMMM yyyy' }}</span>
+      <button mat-icon-button aria-label="Próximo mês" (click)="mudarMes(1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Conta</mat-label>
+      <mat-select [value]="contaId()" (selectionChange)="contaId.set($event.value)">
+        <mat-option [value]="null">Todas</mat-option>
+        @for (conta of contas(); track conta.id) {
+          <mat-option [value]="conta.id">{{ conta.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Categoria</mat-label>
+      <mat-select [value]="categoriaId()" (selectionChange)="categoriaId.set($event.value)">
+        <mat-option [value]="null">Todas</mat-option>
+        @for (categoria of categorias(); track categoria.id) {
+          <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="resumo cartao">
+    <div>
+      <span class="rotulo">Entradas</span>
+      <strong class="valor entrada">{{ entradas() | currency }}</strong>
+    </div>
+    <div>
+      <span class="rotulo">Saídas</span>
+      <strong class="valor">{{ saidas() | currency }}</strong>
+    </div>
+    <div>
+      <span class="rotulo">Resultado</span>
+      <strong class="valor" [class.saida]="entradas() - saidas() < 0">
+        {{ entradas() - saidas() | currency }}
+      </strong>
+    </div>
+  </div>
+
+  @for (grupo of dias(); track grupo.dia.getTime()) {
+    <h2 class="dia">{{ grupo.dia | date: "EEEE, d 'de' MMMM" }}</h2>
+    <div class="cartao">
+      @for (transacao of grupo.transacoes; track transacao.id) {
+        <app-linha-transacao [transacao]="transacao">
+          <button mat-icon-button [matMenuTriggerFor]="acoes" aria-label="Ações da transação">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #acoes="matMenu" xPosition="before">
+            @if (!transacao.transferenciaId) {
+              <button mat-menu-item (click)="editar(transacao)">
+                <mat-icon>edit</mat-icon>Editar
+              </button>
+            }
+            <button mat-menu-item (click)="excluir(transacao)">
+              <mat-icon>delete</mat-icon>Excluir
+            </button>
+          </mat-menu>
+        </app-linha-transacao>
+      }
+    </div>
+  } @empty {
+    @if (transacoes.error()) {
+      <div class="cartao vazio">Não foi possível carregar as transações. Tente novamente.</div>
+    } @else if (!transacoes.isLoading()) {
+      <div class="cartao vazio">
+        <mat-icon>receipt_long</mat-icon>
+        <p>Nenhuma transação neste período.</p>
+      </div>
+    }
+  }
+</section>

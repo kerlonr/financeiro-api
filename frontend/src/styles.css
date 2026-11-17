@@ -1,0 +1,301 @@
+/*
+ * Tema do Lastro.
+ * O Angular Material lê as cores, fontes e cantos das variáveis --mat-sys-*.
+ * Aqui elas são sobrescritas em CSS puro (sem Sass), junto com os tokens do app (--cor-*).
+ */
+html {
+  --cor-fundo: #f5f6f8;
+  --cor-superficie: #ffffff;
+  --cor-borda: #e4e7ec;
+  --cor-borda-forte: #d0d5dd;
+  --cor-texto: #101828;
+  --cor-texto-suave: #667085;
+  --cor-tinta: #16181d;
+  --cor-realce: #f0f2f5;
+  --cor-entrada: #067647;
+  --cor-entrada-fundo: #ecfdf3;
+  --cor-saida: #b42318;
+  --cor-saida-fundo: #fef3f2;
+  --cor-neutra-fundo: #f2f4f7;
+  --raio: 12px;
+  --fonte: 'Inter Variable', system-ui, sans-serif;
+
+  --mat-sys-background: var(--cor-fundo);
+  --mat-sys-surface: var(--cor-superficie);
+  --mat-sys-surface-container: var(--cor-superficie);
+  --mat-sys-surface-container-low: var(--cor-superficie);
+  --mat-sys-surface-container-high: var(--cor-superficie);
+  --mat-sys-surface-container-highest: var(--cor-realce);
+  --mat-sys-on-surface: var(--cor-texto);
+  --mat-sys-on-surface-variant: var(--cor-texto-suave);
+  --mat-sys-primary: var(--cor-tinta);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: var(--cor-realce);
+  --mat-sys-on-primary-container: var(--cor-tinta);
+  --mat-sys-secondary-container: var(--cor-realce);
+  --mat-sys-on-secondary-container: var(--cor-tinta);
+  --mat-sys-outline: var(--cor-borda-forte);
+  --mat-sys-outline-variant: var(--cor-borda);
+  --mat-sys-error: var(--cor-saida);
+  --mat-sys-inverse-surface: var(--cor-tinta);
+  --mat-sys-corner-extra-small: 8px;
+  --mat-sys-corner-small: 8px;
+  --mat-sys-corner-medium: 10px;
+  --mat-sys-corner-large: 14px;
+  --mat-sys-corner-extra-large: 16px;
+  --mat-sys-corner-full: 10px;
+
+  --mat-sys-body-large: 400 1rem / 1.5rem var(--fonte);
+  --mat-sys-body-medium: 400 0.875rem / 1.25rem var(--fonte);
+  --mat-sys-body-small: 400 0.75rem / 1rem var(--fonte);
+  --mat-sys-label-large: 500 0.875rem / 1.25rem var(--fonte);
+  --mat-sys-label-medium: 500 0.75rem / 1rem var(--fonte);
+  --mat-sys-label-small: 500 0.6875rem / 1rem var(--fonte);
+  --mat-sys-title-large: 600 1.25rem / 1.75rem var(--fonte);
+  --mat-sys-title-medium: 600 1rem / 1.5rem var(--fonte);
+  --mat-sys-title-small: 600 0.875rem / 1.25rem var(--fonte);
+  --mat-sys-headline-small: 600 1.25rem / 1.75rem var(--fonte);
+  --mat-sys-body-large-font: var(--fonte);
+  --mat-sys-body-medium-font: var(--fonte);
+  --mat-sys-body-small-font: var(--fonte);
+  --mat-sys-label-large-font: var(--fonte);
+  --mat-sys-label-medium-font: var(--fonte);
+  --mat-sys-label-small-font: var(--fonte);
+  --mat-sys-title-large-font: var(--fonte);
+  --mat-sys-title-medium-font: var(--fonte);
+  --mat-sys-title-small-font: var(--fonte);
+  --mat-sys-headline-small-font: var(--fonte);
+  --mat-sys-label-large-tracking: 0;
+  --mat-sys-body-medium-tracking: 0;
+  --mat-sys-body-large-tracking: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: 400 14px / 1.45 var(--fonte);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ---------- Blocos reutilizados pelas páginas ---------- */
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cor-texto);
+  font-weight: 650;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.marca img {
+  width: 28px;
+  height: 28px;
+}
+
+.pagina {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+}
+
+.pagina-cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.pagina-cabecalho h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.pagina-cabecalho p {
+  color: var(--cor-texto-suave);
+  margin-top: 2px;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cartao {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+}
+
+.rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.valor {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.entrada {
+  color: var(--cor-entrada);
+}
+
+.saida {
+  color: var(--cor-saida);
+}
+
+.vazio {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--cor-texto-suave);
+}
+
+.vazio mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+}
+
+.linha-lista {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.linha-lista:first-child {
+  border-top: 0;
+}
+
+.linha-dados {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.linha-dados strong {
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icone-linha {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--cor-neutra-fundo);
+  color: var(--cor-texto-suave);
+}
+
+.icone-linha mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.icone-linha.entrada {
+  background: var(--cor-entrada-fundo);
+  color: var(--cor-entrada);
+}
+
+.icone-linha.saida {
+  background: var(--cor-saida-fundo);
+  color: var(--cor-saida);
+}
+
+.botao-perigo {
+  --mat-button-filled-container-color: var(--cor-saida);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(420px, 80vw);
+}
+
+.formulario mat-form-field {
+  width: 100%;
+}
+
+.formulario-linha {
+  display: flex;
+  gap: 12px;
+}
+
+.formulario-linha > * {
+  flex: 1;
+}
+
+.erro-formulario {
+  background: var(--cor-saida-fundo);
+  color: var(--cor-saida);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+/* ---------- Ajustes finos do Material ---------- */
+
+.mat-mdc-dialog-surface {
+  border: 1px solid var(--cor-borda);
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-subhead-font: var(--fonte);
+  --mat-dialog-subhead-weight: 600;
+  --mat-dialog-subhead-size: 18px;
+  --mat-dialog-subhead-tracking: -0.01em;
+}
+
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-container-shape: 10px;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .pagina {
+    padding: 20px 16px 96px;
+  }
+
+  .formulario-linha {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

@@ -1,0 +1,21 @@
+<span
+  class="icone-linha"
+  [class.entrada]="ehEntrada() && !ehTransferencia()"
+  [class.saida]="!ehEntrada() && !ehTransferencia()"
+>
+  <mat-icon>{{ icone() }}</mat-icon>
+</span>
+
+<div class="linha-dados">
+  <strong>{{ transacao().descricao }}</strong>
+  <span class="rotulo">
+    {{ ehTransferencia() ? 'Transferência' : transacao().categoriaNome }} ·
+    {{ transacao().contaNome }}
+  </span>
+</div>
+
+<strong class="valor" [class.entrada]="ehEntrada()" [class.transferencia]="ehTransferencia()">
+  {{ ehEntrada() ? '+' : '−' }} {{ transacao().valor | currency }}
+</strong>
+
+<ng-content />

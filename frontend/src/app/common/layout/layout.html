@@ -1,0 +1,35 @@
+<div class="moldura">
+  <nav class="menu" aria-label="Menu principal">
+    <a class="marca" routerLink="/"><img src="favicon.svg" alt="" /> Lastro</a>
+
+    <ul>
+      @for (item of menu; track item.rota) {
+        <li>
+          <a
+            [routerLink]="item.rota"
+            routerLinkActive="ativo"
+            [routerLinkActiveOptions]="{ exact: item.rota === '/' }"
+          >
+            <mat-icon>{{ item.icone }}</mat-icon>
+            <span>{{ item.titulo }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="usuario">
+      <span class="avatar">{{ authService.usuario()?.nome?.charAt(0) }}</span>
+      <div class="usuario-dados">
+        <strong>{{ authService.usuario()?.nome }}</strong>
+        <span>{{ authService.usuario()?.email }}</span>
+      </div>
+      <button mat-icon-button matTooltip="Sair" aria-label="Sair" (click)="authService.sair()">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </nav>
+
+  <main class="conteudo">
+    <router-outlet />
+  </main>
+</div>

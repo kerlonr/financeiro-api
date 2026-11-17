@@ -1,0 +1,49 @@
+<section class="pagina">
+  <header class="pagina-cabecalho">
+    <div>
+      <h1>Contas</h1>
+      <p>Onde o seu dinheiro está guardado.</p>
+    </div>
+    <button mat-flat-button (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon>
+      Nova conta
+    </button>
+  </header>
+
+  <div class="cartao">
+    @if (contas.error()) {
+      <div class="vazio">Não foi possível carregar as contas. Tente novamente.</div>
+    } @else {
+      @for (conta of contas.value(); track conta.id) {
+        <div class="linha-lista">
+          <span class="icone-linha"><mat-icon>account_balance</mat-icon></span>
+          <div class="linha-dados">
+            <strong>{{ conta.nome }}</strong>
+            <span class="rotulo">Saldo inicial {{ conta.saldoInicial | currency }}</span>
+          </div>
+          <strong class="valor" [class.saida]="conta.saldo < 0">{{
+            conta.saldo | currency
+          }}</strong>
+          <button mat-icon-button [matMenuTriggerFor]="acoes" aria-label="Ações da conta">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #acoes="matMenu" xPosition="before">
+            <button mat-menu-item (click)="abrirFormulario(conta)">
+              <mat-icon>edit</mat-icon>Editar
+            </button>
+            <button mat-menu-item (click)="excluir(conta)">
+              <mat-icon>delete</mat-icon>Excluir
+            </button>
+          </mat-menu>
+        </div>
+      } @empty {
+        @if (!contas.isLoading()) {
+          <div class="vazio">
+            <mat-icon>account_balance</mat-icon>
+            <p>Nenhuma conta cadastrada. Comece pela sua conta corrente ou carteira.</p>
+          </div>
+        }
+      }
+    }
+  </div>
+</section>

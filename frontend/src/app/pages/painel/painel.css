@@ -1,0 +1,80 @@
+.data-hoje::first-letter {
+  text-transform: uppercase;
+}
+
+.destaques {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+
+.destaques .cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 24px;
+}
+
+.saldo-geral strong {
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mes {
+  justify-content: flex-end;
+}
+
+.mes strong {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.secao-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32px 0 10px;
+}
+
+.secao-titulo h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.contas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.conta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 18px;
+}
+
+.conta .icone-linha {
+  margin-bottom: 10px;
+}
+
+.conta strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .destaques {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .saldo-geral {
+    grid-column: 1 / -1;
+  }
+
+  .saldo-geral strong {
+    font-size: 28px;
+  }
+}

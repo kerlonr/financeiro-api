@@ -1,0 +1,78 @@
+<section class="pagina">
+  <header class="pagina-cabecalho">
+    <div>
+      <h1>Olá, {{ primeiroNome() }}</h1>
+      <p class="data-hoje">{{ hoje | date: "EEEE, d 'de' MMMM" }}</p>
+    </div>
+    <div class="acoes">
+      <button mat-stroked-button (click)="transferir()">
+        <mat-icon>sync_alt</mat-icon>
+        Transferir
+      </button>
+      <button mat-flat-button (click)="novaTransacao()">
+        <mat-icon>add</mat-icon>
+        Nova transação
+      </button>
+    </div>
+  </header>
+
+  @if (painel.error()) {
+    <div class="cartao vazio">Não foi possível carregar o resumo. Tente novamente.</div>
+  } @else if (painel.value(); as resumo) {
+    <div class="destaques">
+      <div class="cartao saldo-geral">
+        <span class="rotulo">Saldo geral</span>
+        <strong class="valor" [class.saida]="resumo.saldoTotal < 0">{{
+          resumo.saldoTotal | currency
+        }}</strong>
+        <span class="rotulo"
+          >Somando {{ resumo.contas.length }}
+          {{ resumo.contas.length === 1 ? 'conta' : 'contas' }}</span
+        >
+      </div>
+      <div class="cartao mes">
+        <span class="rotulo">Entradas no mês</span>
+        <strong class="valor entrada">{{ resumo.entradasDoMes | currency }}</strong>
+      </div>
+      <div class="cartao mes">
+        <span class="rotulo">Saídas no mês</span>
+        <strong class="valor">{{ resumo.saidasDoMes | currency }}</strong>
+      </div>
+    </div>
+
+    <div class="secao-titulo">
+      <h2>Saldo por conta</h2>
+      <a mat-button routerLink="/contas">Gerenciar</a>
+    </div>
+    @if (resumo.contas.length) {
+      <div class="contas">
+        @for (conta of resumo.contas; track conta.id) {
+          <div class="cartao conta">
+            <span class="icone-linha"><mat-icon>account_balance</mat-icon></span>
+            <span class="rotulo">{{ conta.nome }}</span>
+            <strong class="valor" [class.saida]="conta.saldo < 0">{{
+              conta.saldo | currency
+            }}</strong>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="cartao vazio">
+        <p>Cadastre sua primeira conta para começar.</p>
+        <a mat-stroked-button routerLink="/contas">Ir para contas</a>
+      </div>
+    }
+
+    <div class="secao-titulo">
+      <h2>Últimas transações</h2>
+      <a mat-button routerLink="/transacoes">Ver todas</a>
+    </div>
+    <div class="cartao">
+      @for (transacao of resumo.ultimasTransacoes; track transacao.id) {
+        <app-linha-transacao [transacao]="transacao" />
+      } @empty {
+        <div class="vazio">Nenhuma transação lançada ainda.</div>
+      }
+    </div>
+  }
+</section>

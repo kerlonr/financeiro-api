@@ -1,0 +1,139 @@
+.moldura {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.menu {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px 12px;
+  background: var(--cor-superficie);
+  border-right: 1px solid var(--cor-borda);
+}
+
+.marca {
+  padding: 4px 12px 24px;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--cor-texto-suave);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+ul a:hover {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+ul a.ativo {
+  background: var(--cor-realce);
+  color: var(--cor-texto);
+}
+
+ul mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 12px 4px 0 12px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cor-realce);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.usuario-dados {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.usuario-dados strong,
+.usuario-dados span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-dados span {
+  color: var(--cor-texto-suave);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .moldura {
+    display: block;
+  }
+
+  .menu {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 10;
+    height: auto;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-right: 0;
+    flex-direction: row;
+    align-items: center;
+    border-top: 1px solid var(--cor-borda);
+  }
+
+  .marca,
+  .avatar,
+  .usuario-dados {
+    display: none;
+  }
+
+  .usuario {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ul {
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  ul a {
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
